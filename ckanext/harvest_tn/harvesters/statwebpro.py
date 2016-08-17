@@ -9,7 +9,7 @@ from ckan.plugins.core import SingletonPlugin
 from ckanext.harvest_tn.model.statweb_metadata import StatWebProIndex, StatWebProEntry, StatWebMetadataPro
 import ckanext.harvest_tn.model.mapping as mapping
 
-from ckanext.harvest_tn.harvesters.base import StatWebBaseHarvester
+from ckanext.harvest_tn.harvesters.statwebbase import StatWebBaseHarvester
 
 log = logging.getLogger(__name__)
 

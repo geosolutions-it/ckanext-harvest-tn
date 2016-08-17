@@ -9,7 +9,7 @@ from ckan.plugins.core import SingletonPlugin
 from ckanext.harvest_tn.model.statweb_metadata import StatWebSubProIndex, StatWebMetadataSubPro, SubProMetadata
 import ckanext.harvest_tn.model.mapping as mapping
 
-from ckanext.harvest_tn.harvesters.base import StatWebBaseHarvester
+from ckanext.harvest_tn.harvesters.statwebbase import StatWebBaseHarvester
 
 
 log = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 class StatWebSubProHarvester(StatWebBaseHarvester, SingletonPlugin):
     '''
-    Harvester per StatWeb BubPro
+    Harvester per StatWeb SubPro
 
     GATHER: fa richiesta al servizio indice e salva ogni entry in un HarvestObject.
             L'indice comprende anche i metadati del dataset
