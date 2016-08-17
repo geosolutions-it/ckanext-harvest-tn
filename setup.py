@@ -6,7 +6,7 @@ version = '0.5'
 setup(
     name='ckanext-harvest-tn',
     version=version,
-    description="CKAN StatWeb harvesters for Trento",
+    description="CKAN harvesters for Trento",
     long_description="""\
     """,
     classifiers=[],  # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -27,5 +27,6 @@ setup(
         [ckan.plugins]
         statwebpro_harvester=ckanext.harvest_tn.harvesters.statwebpro:StatWebProHarvester
         statwebsubpro_harvester=ckanext.harvest_tn.harvesters.statwebsubpro:StatWebSubProHarvester
+        csw_tn_harvester=ckanext.harvest_tn.harvesters.csw_tn:CSWTNHarvester
     """,
 )
