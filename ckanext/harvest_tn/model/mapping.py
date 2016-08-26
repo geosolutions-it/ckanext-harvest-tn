@@ -114,16 +114,15 @@ def create_base_dict(guid, metadata, config):
     }
 
     extras = {
-        'Titolare': 'Provincia Autonoma di Trento',
-        'Copertura Geografica': 'Provincia di Trento',
-        'Copertura Temporale (Data di inizio)': dateformat(created),
-        'Frequenza di Aggiornamento': metadata.get_frequenza(),
-        'Data di pubblicazione': now,
-        'Aggiornamento': dateformat(updated),
-        'Codifica Caratteri': 'UTF-8',
-
+        'holder': 'Provincia Autonoma di Trento',
+        'geographical_coverage': 'Provincia di Trento',
+        'temporal_coverage_start': dateformat(created),
+        'update_frequency': metadata.get_frequenza(),
+        'publication_date': now,
+        'revision_date': dateformat(updated),
+        'encoding': 'UTF-8',
         'Algoritmo':         metadata.get_algoritmo(),
-        'Anno di inizio':       metadata.get_anno_inizio(),
+        'Anno di inizio':    metadata.get_anno_inizio(),
         'Measurement unit':  metadata.get_um(),
     }
 
