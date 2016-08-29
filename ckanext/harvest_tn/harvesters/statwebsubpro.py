@@ -97,9 +97,16 @@ class StatWebSubProHarvester(StatWebBaseHarvester, SingletonPlugin):
             log.warn('StatWebSubPro error loading resource metadata %s for guid %s', md_resource_url, harvest_object.guid)
             return
 
-        spmd = SubProMetadata(str=rmd.content)
-        log.debug('Attaching resource "%s"', spmd.get_descrizione())
-        self._attach_data_resources(spmd.get_data_url(), package_dict)
+        if not rmd.content:
+            log.warn('Empty json at resource URL %s', md_resource_url)
+            return
+
+        try:
+            spmd = SubProMetadata(str=rmd.content)
+            log.debug('Attaching resource "%s"', spmd.get_descrizione())
+            self._attach_data_resources(spmd.get_data_url(), package_dict)
+        except ValueError as e:
+            log.warn('Error decoding json\n URL: %s\njson: "%s"', rmd.content)
 
 
     def _attach_data_resources(self, json_resource_url, package_dict):
@@ -109,7 +116,7 @@ class StatWebSubProHarvester(StatWebBaseHarvester, SingletonPlugin):
 
         rdata = requests.get(json_resource_url)
         if not rdata.ok:
-            log.info('StatWebSubPro error loading json resource at %s', json_resource_url)
+            log.warn('StatWebSubPro error loading json resource at %s', json_resource_url)
             return
 
         res_title = rdata.json().keys()[0]

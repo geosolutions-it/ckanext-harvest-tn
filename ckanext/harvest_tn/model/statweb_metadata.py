@@ -12,7 +12,7 @@ class StatWebProIndex(object):
     (id e URL) dei dataset.
     '''
 
-    entries = {}  # id: StatWebProEntry
+    entries = {}  # guid: StatWebProEntry
 
     def __init__(self, str):
         assert (str is not None), 'Index missing'
@@ -33,13 +33,13 @@ class StatWebProIndex(object):
                 continue
 
             entry = StatWebProEntry(obj=jsonentry)
-            self.entries[entry.get_id()] = entry
+            self.entries[entry.build_guid()] = entry
 
     def keys(self):
         return set(self.entries.keys())
 
-    def get_as_string(self, key):
-        return self.entries[key].tostring()
+    def get_as_string(self, guid):
+        return self.entries[guid].tostring()
 
 
 class StatWebProEntry(object):
@@ -61,6 +61,9 @@ class StatWebProEntry(object):
             self.obj = obj
         else:
             self.obj = _safe_decode(str)
+
+    def build_guid(self):
+        return 'statistica:' + self.get_id()
 
     def get_id(self):
         return str(self.obj['id'])
@@ -168,6 +171,9 @@ class StatWebMetadataSubPro(StatWebMetadata):
                 traceback.print_exc()
                 raise e        
 
+    def build_guid(self):
+        return 'subpro:' + self.get_id()
+
     def get_id(self):
         return self.metadata.get('id')
 
@@ -218,13 +224,13 @@ class StatWebSubProIndex(object):
                 continue
 
             entry = StatWebMetadataSubPro(obj=jsonentry)
-            self.entries[entry.get_id()] = entry
+            self.entries[entry.build_guid()] = entry
 
     def keys(self):
         return set(self.entries.keys())
 
-    def get_as_string(self, key):
-        return self.entries[key].tostring()
+    def get_as_string(self, guid):
+        return self.entries[guid].tostring()
 
 
 class SubProMetadata(object):

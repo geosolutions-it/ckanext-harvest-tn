@@ -66,7 +66,8 @@ class StatWebProHarvester(StatWebBaseHarvester, SingletonPlugin):
     def create_package_dict(self, guid, content):
         swpentry = StatWebProEntry(str=content)
         metadata = StatWebMetadataPro(obj=swpentry.get_metadata())
-        package_dict = mapping.create_pro_package_dict(guid, metadata, self.source_config)
+        orig_id = swpentry.get_id()
+        package_dict = mapping.create_pro_package_dict(guid, orig_id, metadata, self.source_config)
         return package_dict, metadata
 
     def fetch_stage(self, harvest_object):

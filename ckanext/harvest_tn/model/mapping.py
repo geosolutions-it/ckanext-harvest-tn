@@ -88,6 +88,9 @@ def create_base_dict(guid, metadata, config):
         return d.isoformat()
 
     start_date = metadata.get_anno_inizio() or '1970'
+    if len(start_date) < 4:
+        log.warn("Bad annoinizio found: '%s'", start_date)
+        start_date = '1970'
     created = datetime.datetime(int(start_date), 1, 1)
 
     last_update = metadata.get_ultimo_aggiornamento() or "01/01/1970"
@@ -129,7 +132,7 @@ def create_base_dict(guid, metadata, config):
     return package_dict, extras
 
 
-def create_pro_package_dict(guid, metadata, config):
+def create_pro_package_dict(guid, orig_id, metadata, config):
     """
     :param StatWebMetadataPro metadata:  The statweb metadata object for PRO level.
     ;param dict config:  The configuration set at harvester level.
@@ -141,7 +144,7 @@ def create_pro_package_dict(guid, metadata, config):
 
     extras['Fenomeno'] =  metadata.get_fenomeno()
     extras['Confronti territoriali'] = metadata.get_confronti()
-    extras['_harvest_source'] = 'statistica:' + guid
+    extras['_harvest_source'] = 'statistica:' + orig_id
 
     package_dict['extras'] = _extras_as_dict(extras)
 
@@ -149,7 +152,7 @@ def create_pro_package_dict(guid, metadata, config):
     category = cat_map_pro.get((metadata.get_settore() or 'default').lower(), 'Conoscenza')
     description = create_pro_description(metadata)
 
-    package_dict['id'] = sha1('statistica:' + guid).hexdigest(),
+    package_dict['id'] = sha1('statistica:' + orig_id).hexdigest(),
     package_dict['url'] = 'http://www.statweb.provincia.tn.it/INDICATORISTRUTTURALI/ElencoIndicatori.aspx'
     package_dict['Categorie'] = category
     package_dict['notes'] = description
@@ -165,6 +168,8 @@ def create_subpro_package_dict(guid, metadata, config):
        The configuration set at harvester level
     """
 
+    orig_id = metadata.get_id()
+
     package_dict, extras = create_base_dict(guid, metadata, config)
 
     extras['Fonte'] =  metadata.get_fonte()
@@ -172,14 +177,14 @@ def create_subpro_package_dict(guid, metadata, config):
     extras['Tipo di Indicatore'] =  metadata.get_tipo_indicatore()
     extras['Settore'] =  metadata.get_settore()
     extras['Livello Geografico Minimo'] =  metadata.get_min_livello()
-    extras['_harvest_source'] = 'statistica_subpro:' + guid
+    extras['_harvest_source'] = 'statistica_subpro:' + orig_id
 
     package_dict['extras'] = _extras_as_dict(extras)
 
     category = cat_map_sub.get((metadata.get_settore() or 'default').lower(), 'Conoscenza')
     description = create_subpro_description(metadata)
 
-    package_dict['id'] = sha1('statistica_subpro:' + guid).hexdigest(),
+    package_dict['id'] = sha1('statistica_subpro:' + orig_id).hexdigest(),
     package_dict['url'] = 'http://www.statweb.provincia.tn.it/INDICATORISTRUTTURALISubPro/'
     package_dict['Categorie'] = category
     package_dict['notes'] = description
