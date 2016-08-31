@@ -33,39 +33,50 @@ tags_subs = {
     'idrografici':              'idrografia',
 }
 
+# gruppi:
+#["agricoltura", "ambiente", "amministrazione", "cat-meteo",
+# "clima", "conoscenza", "cultura", "demografia", "economia",
+# "gestione-del-territorio", "mobilita", "politica", "salute",
+# "sanita", "sicurezza", "sport", "test-categoria", "turismo", "welfare"]
+
+DEFAULT_GROUP_PRO = 'conoscenza'
+
 # mappa Settore verso Categorie
 cat_map_pro = {
-    u'agricoltura':     'Economia',
-    u'pesca':           'Economia',
-    u'silvicoltura':    'Economia',
-    u'commercio con l\'estero':     'Economia',
-    u'commercio con l\'estero e internazionalizzazione': 'Economia',
-    u'internazionalizzazione':      'Economia',
-    u'conti economici':             'Economia',
-    u'pubblica amministrazione': 'Amministrazione',
-    u'istruzione formazione':   'Conoscenza',
-    u'ricerca':                 'Conoscenza',
-    u'sviluppo e innovazione':  'Conoscenza',
-    u'mercato del lavoro':               'Welfare',
-    u'salute':                           'Welfare',
-    u'famiglie e comportamenti sociali': 'Welfare',
-    u'assistenza e protezione sociale':  'Welfare',
-    u'popolazione':                      'Demografia',
-    u'società dell\'informazione':       'Demografia',
+    u'agricoltura':     'economia',
+    u'pesca':           'economia',
+    u'silvicoltura':    'economia',
+    u'commercio con l\'estero':     'economia',
+    u'commercio con l\'estero e internazionalizzazione': 'economia',
+    u'internazionalizzazione':      'economia',
+    u'conti economici':             'economia',
+    u'pubblica amministrazione': 'amministrazione',
+    u'istruzione formazione':    'conoscenza',
+    u'istruzione e formazione':  'conoscenza',
+    u'ricerca':                  'conoscenza',
+    u'sviluppo e innovazione':   'conoscenza',
+    u'mercato del lavoro':               'welfare',
+    u'salute':                           'welfare',
+    u'famiglie e comportamenti sociali': 'welfare',
+    u'assistenza e protezione sociale':  'welfare',
+    u'popolazione':                      'demografia',
+    u'società dell\'informazione':       'demografia',
 }
 
+DEFAULT_GROUP_SUBPRO = 'conoscenza'
+
 cat_map_sub = {
-    "l'ambiente e il territorio":   "Gestione del territorio",
-    'le infrastrutture':            "Gestione del territorio",
-    'popolazione':                  "Demografia",
-    'famiglie e comportamenti sociali': 'Demografia',
-    'istruzione e formazione':      'Conoscenza',
-    'mercato del lavoro':           'Economia',
+    "l'ambiente e il territorio":   "gestione-del-territorio",
+    'le infrastrutture':            "gestione-del-territorio",
+    'popolazione':                  "demografia",
+    'famiglie e comportamenti sociali': 'demografia',
+    'istruzione e formazione':      'conoscenza',
+    'mercato del lavoro':           'economia',
     'le imprese, la formazione e la valorizzazione del capitale produttivo':
-                                    'Economia',
-    'agricoltura':                  'Economia',
-    'servizi':                      'Economia',
-    'agricoltura, silvicoltura, pesca': 'Economia',
+                                    'economia',
+    'agricoltura':                  'economia',
+    'servizi':                      'economia',
+    'agricoltura, silvicoltura, pesca': 'economia',
 }
 
 tipoindicatore_map = {
@@ -148,13 +159,14 @@ def create_pro_package_dict(guid, orig_id, metadata, config):
 
     package_dict['extras'] = _extras_as_dict(extras)
 
+    groupname = cat_map_pro.get((metadata.get_settore() or 'default').lower(), DEFAULT_GROUP_PRO)
+    groups = [{'name': groupname}]
 
-    category = cat_map_pro.get((metadata.get_settore() or 'default').lower(), 'Conoscenza')
     description = create_pro_description(metadata)
 
     package_dict['id'] = sha1('statistica:' + orig_id).hexdigest(),
     package_dict['url'] = 'http://www.statweb.provincia.tn.it/INDICATORISTRUTTURALI/ElencoIndicatori.aspx'
-    package_dict['Categorie'] = category
+    package_dict['groups'] = groups
     package_dict['notes'] = description
 
     return package_dict
@@ -181,12 +193,14 @@ def create_subpro_package_dict(guid, metadata, config):
 
     package_dict['extras'] = _extras_as_dict(extras)
 
-    category = cat_map_sub.get((metadata.get_settore() or 'default').lower(), 'Conoscenza')
+    groupname = cat_map_sub.get((metadata.get_settore() or 'default').lower(), DEFAULT_GROUP_SUBPRO)
+    groups = [{'name': groupname}]
+
     description = create_subpro_description(metadata)
 
     package_dict['id'] = sha1('statistica_subpro:' + orig_id).hexdigest(),
     package_dict['url'] = 'http://www.statweb.provincia.tn.it/INDICATORISTRUTTURALISubPro/'
-    package_dict['Categorie'] = category
+    package_dict['groups'] = groups
     package_dict['notes'] = description
 
     return package_dict
