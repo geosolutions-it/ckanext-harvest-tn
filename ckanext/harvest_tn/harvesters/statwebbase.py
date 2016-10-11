@@ -17,6 +17,7 @@ from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.harvest.model import HarvestObject
 from ckanext.harvest.model import HarvestObjectExtra as HOExtra
 
+from ckan.lib.search.index import PackageSearchIndex
 from ckan.lib.helpers import json
 from ckan.lib.navl.validators import not_empty
 
@@ -173,10 +174,10 @@ class StatWebBaseHarvester(HarvesterBase, SingletonPlugin):
                           .filter(HarvestObject.current == True) \
                           .first()
 
+        context = {'model': model, 'session': model.Session, 'user': self._get_user_name()}
+
         if status == 'delete':
             # Delete package
-            context = {'model': model, 'session': model.Session, 'user': self._get_user_name()}
-
             p.toolkit.get_action('package_delete')(context, {'id': harvest_object.package_id})
             log.info('Deleted package {0} with guid {1}'.format(harvest_object.package_id, harvest_object.guid))
 
@@ -187,6 +188,10 @@ class StatWebBaseHarvester(HarvesterBase, SingletonPlugin):
             previous_object.current = False
             previous_object.add()
 
+        # Flag this object as the current one
+        harvest_object.current = True
+        harvest_object.add()
+        
         # Generate GUID if not present (i.e. it's a manual import)
         if not harvest_object.guid:
             self._save_object_error('Missing GUID for object {0}'
@@ -212,9 +217,25 @@ class StatWebBaseHarvester(HarvesterBase, SingletonPlugin):
                 harvest_object.add()
 
                 harvest_object.metadata_modified_date = previous_object.metadata_modified_date
+                harvest_object.add()
 
                 # Delete the previous object to avoid cluttering the object table
                 previous_object.delete()
+
+                # Reindex the corresponding package to update the reference to the harvest object
+                context.update({'validate': False, 'ignore_auth': True})
+                try:
+                    package_dict = logic.get_action('package_show')(context,
+                        {'id': harvest_object.package_id})
+                except p.toolkit.ObjectNotFound:
+                    pass
+                else:
+                    for extra in package_dict.get('extras', []):
+                        if extra['key'] == 'harvest_object_id':
+                            extra['value'] = harvest_object.id
+                    if package_dict:
+                        package_index = PackageSearchIndex()
+                        package_index.index_package(package_dict)
 
                 log.info('%s document with GUID %s unchanged, skipping...', self.harvester_name(),harvest_object.guid)
                 model.Session.commit()
@@ -252,10 +273,6 @@ class StatWebBaseHarvester(HarvesterBase, SingletonPlugin):
         # The default package schema does not like Upper case tags
         tag_schema = logic.schema.default_tags_schema()
         tag_schema['name'] = [not_empty, unicode]
-
-        # Flag this object as the current one
-        harvest_object.current = True
-        harvest_object.add()
 
         if status == 'new':
             package_schema = logic.schema.default_create_package_schema()
