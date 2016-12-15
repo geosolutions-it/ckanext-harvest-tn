@@ -4,6 +4,8 @@ ckanext-harvest-tn
 
 Estensione CKAN per la Provincia di Trento
 
+#DEPRECATED: Ported into https://github.com/geosolutions-it/ckanext-datitrentinoit
+
 ------
 Plugin
 ------
